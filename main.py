@@ -1,17 +1,19 @@
 from fastapi import FastAPI
 
-from app.db.session import Base, engine
-from app.models import blog as blog_model  # noqa: F401  (registers table with Base)
-from app.models import user as user_model  # noqa: F401  (registers table with Base)
-from app.routers import auth, blog, user
+from app import models  # noqa: F401  (registers tables with Base)
+from app.config.database import Base, engine
+from app.config.settings import settings
+from app.middleware.error_middleware import register_error_handlers
+from app.routes import api_router
+from app.utils.seed import seed_defaults
 
 Base.metadata.create_all(bind=engine)
+seed_defaults()
 
-app = FastAPI(title="Python Blog API")
+app = FastAPI(title=settings.APP_NAME)
 
-app.include_router(auth.router)
-app.include_router(blog.router)
-app.include_router(user.router)
+register_error_handlers(app)
+app.include_router(api_router)
 
 
 # Home route

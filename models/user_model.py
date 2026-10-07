@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
 
-from app.db.session import Base
+from app.config.database import Base
+from app.models.role_model import user_roles
 
 
 class User(Base):
@@ -10,3 +12,7 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
+
+    roles = relationship(
+        "Role", secondary=user_roles, back_populates="users", lazy="selectin"
+    )
